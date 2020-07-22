@@ -1,0 +1,8 @@
+<resources>
+    <string name="app_name">ObservableEntity</string>
+    <string name="popular_phones">Popular phones</string>
+    <string name="good_phones">Good phones</string>
+    <string name="like">like</string>
+    <string name="unlike">unlike</string>
+    <string name="reload">reload</string>
+</resources>

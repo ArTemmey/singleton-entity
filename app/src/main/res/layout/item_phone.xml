@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout>
+
+    <data>
+
+        <variable
+            name="data"
+            type="ru.impression.observable_entity_example.entity.Phone" />
+    </data>
+
+    <ru.impression.observable_entity_example.presentation.PhoneViewComponent xmlns:android="http://schemas.android.com/apk/res/android"
+        phone="@{data}"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content" />
+</layout>
