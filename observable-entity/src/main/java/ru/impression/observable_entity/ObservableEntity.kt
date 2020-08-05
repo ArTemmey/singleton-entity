@@ -13,6 +13,9 @@ abstract class ObservableEntity : ObservableEntityParent {
             if (value) GlobalStore.add(this) else GlobalStore.remove(this)
         }
 
+    @Volatile
+    private var wasGlobal = false
+
     protected val delegates = ArrayList<ObservableEntityParentStateImpl<out ObservableEntity, *>>()
 
     private val parents = ConcurrentLinkedQueue<ObservableEntityParent>()
@@ -51,12 +54,19 @@ abstract class ObservableEntity : ObservableEntityParent {
     @Synchronized
     internal fun attach(parent: ObservableEntityParent) {
         if (!parents.contains(parent)) parents.add(parent)
+        if (wasGlobal) {
+            isGlobal = true
+            wasGlobal = false
+        }
     }
 
     @Synchronized
     internal fun detach(parent: ObservableEntityParent) {
         parents.remove(parent)
-        if (parents.isEmpty()) isGlobal = false
+        if (parents.isEmpty()) {
+            wasGlobal = isGlobal
+            isGlobal = false
+        }
     }
 
     @Synchronized
