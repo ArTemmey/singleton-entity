@@ -44,10 +44,10 @@ dependencies {
     implementation 'androidx.appcompat:appcompat:1.1.0'
     implementation 'androidx.core:core-ktx:1.3.0'
     implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-base:0.9.21'
-    implementation 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-annotations:0.9.21'
-    kapt 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-processor:0.9.21'
-    implementation 'com.github.ArtemiyDmtrvch:uigen-recycler-view:9d0566232d'
+    implementation 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-base:dd0f6a8279'
+    implementation 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-annotations:dd0f6a8279'
+    kapt 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-processor:dd0f6a8279'
+    implementation 'com.github.ArtemiyDmtrvch:uigen-recycler-view:4b415092df'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7'
     implementation "com.google.dagger:dagger:2.24"
     implementation "com.google.dagger:dagger-android:2.22.1"

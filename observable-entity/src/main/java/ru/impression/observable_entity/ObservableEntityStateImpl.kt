@@ -1,14 +1,14 @@
 package ru.impression.observable_entity
 
-import ru.impression.ui_generator_base.ObservableImpl
+import ru.impression.ui_generator_base.StateImpl
 
-open class ObservableEntityStateDelegate<R : ObservableEntityParent, T>(
+open class ObservableEntityStateImpl<R : ObservableEntityParent, T>(
     parent: R,
     initialValue: T,
     getInitialValue: (suspend () -> T)?,
     immediatelyBindChanges: Boolean?,
     onChanged: ((T) -> Unit)?
-) : ObservableImpl<R, T>(
+) : StateImpl<R, T>(
     parent,
     initialValue,
     getInitialValue,

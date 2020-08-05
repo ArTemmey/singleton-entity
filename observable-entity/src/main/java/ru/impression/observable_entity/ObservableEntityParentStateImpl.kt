@@ -4,13 +4,13 @@ import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty
 import kotlin.reflect.jvm.isAccessible
 
-open class ObservableEntityParentDelegate<R : ObservableEntityParent, T>(
+open class ObservableEntityParentStateImpl<R : ObservableEntityParent, T>(
     parent: R,
     initialValue: T,
     getInitialValue: (suspend () -> T)?,
     immediatelyBindChanges: Boolean?,
     onChanged: ((T) -> Unit)?
-) : ObservableEntityStateDelegate<R, T>(
+) : ObservableEntityStateImpl<R, T>(
     parent,
     initialValue,
     getInitialValue,

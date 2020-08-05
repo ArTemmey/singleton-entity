@@ -6,13 +6,13 @@ import kotlin.properties.ReadWriteProperty
 
 abstract class ObservableEntityParentCoroutineViewModel : CoroutineViewModel(), ObservableEntityParent {
 
-    private val delegates = ArrayList<ObservableEntityParentDelegate<ObservableEntityParentCoroutineViewModel, *>>()
+    private val delegates = ArrayList<ObservableEntityParentStateImpl<ObservableEntityParentCoroutineViewModel, *>>()
 
     protected fun <T : ObservableEntity> observableEntity(
         getInitialValue: suspend () -> T?,
         immediatelyBindChanges: Boolean = false,
         onChanged: ((T?) -> Unit)? = null
-    ): ReadWriteProperty<ObservableEntityParentCoroutineViewModel, T?> = ObservableEntityParentDelegate(
+    ): ReadWriteProperty<ObservableEntityParentCoroutineViewModel, T?> = ObservableEntityParentStateImpl(
         this,
         null,
         getInitialValue,
@@ -24,7 +24,7 @@ abstract class ObservableEntityParentCoroutineViewModel : CoroutineViewModel(), 
         getInitialValue: suspend () -> List<T>?,
         immediatelyBindChanges: Boolean = false,
         onChanged: ((List<T>?) -> Unit)? = null
-    ): ReadWriteProperty<ObservableEntityParentCoroutineViewModel, List<T>?> = ObservableEntityParentDelegate(
+    ): ReadWriteProperty<ObservableEntityParentCoroutineViewModel, List<T>?> = ObservableEntityParentStateImpl(
         this,
         null,
         getInitialValue,

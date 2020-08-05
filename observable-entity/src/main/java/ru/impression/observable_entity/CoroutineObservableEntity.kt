@@ -11,7 +11,7 @@ abstract class CoroutineObservableEntity : ObservableEntity(),
         getInitialValue: suspend () -> T,
         immediatelyBindChanges: Boolean = false,
         onChanged: ((T?) -> Unit)? = null
-    ): ReadWriteProperty<CoroutineObservableEntity, T?> = ObservableEntityStateDelegate(
+    ): ReadWriteProperty<CoroutineObservableEntity, T?> = ObservableEntityStateImpl(
         this,
         null,
         getInitialValue,
@@ -23,7 +23,7 @@ abstract class CoroutineObservableEntity : ObservableEntity(),
         getInitialValue: suspend () -> T?,
         immediatelyBindChanges: Boolean = false,
         onChanged: ((T?) -> Unit)? = null
-    ): ReadWriteProperty<CoroutineObservableEntity, T?> = ObservableEntityParentDelegate(
+    ): ReadWriteProperty<CoroutineObservableEntity, T?> = ObservableEntityParentStateImpl(
         this,
         null,
         getInitialValue,
@@ -35,7 +35,7 @@ abstract class CoroutineObservableEntity : ObservableEntity(),
         getInitialValue: suspend () -> Iterable<T>?,
         immediatelyBindChanges: Boolean = false,
         onChanged: ((Iterable<T>?) -> Unit)? = null
-    ): ReadWriteProperty<CoroutineObservableEntity, Iterable<T>?> = ObservableEntityParentDelegate(
+    ): ReadWriteProperty<CoroutineObservableEntity, Iterable<T>?> = ObservableEntityParentStateImpl(
         this,
         null,
         getInitialValue,

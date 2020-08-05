@@ -13,7 +13,7 @@ abstract class ObservableEntity : ObservableEntityParent {
             if (value) GlobalStore.add(this) else GlobalStore.remove(this)
         }
 
-    protected val delegates = ArrayList<ObservableEntityParentDelegate<out ObservableEntity, *>>()
+    protected val delegates = ArrayList<ObservableEntityParentStateImpl<out ObservableEntity, *>>()
 
     private val parents = ConcurrentLinkedQueue<ObservableEntityParent>()
 
@@ -22,13 +22,13 @@ abstract class ObservableEntity : ObservableEntityParent {
         immediatelyBindChanges: Boolean = false,
         onChanged: ((T) -> Unit)? = null
     ): ReadWriteProperty<ObservableEntity, T> =
-        ObservableEntityStateDelegate(this, initialValue, null, immediatelyBindChanges, onChanged)
+        ObservableEntityStateImpl(this, initialValue, null, immediatelyBindChanges, onChanged)
 
     protected fun <T : ObservableEntity> observableEntity(
         initialValue: T,
         immediatelyBindChanges: Boolean = false,
         onChanged: ((T) -> Unit)? = null
-    ): ReadWriteProperty<ObservableEntity, T> = ObservableEntityParentDelegate(
+    ): ReadWriteProperty<ObservableEntity, T> = ObservableEntityParentStateImpl(
         this,
         initialValue,
         null,
@@ -40,7 +40,7 @@ abstract class ObservableEntity : ObservableEntityParent {
         initialValue: Iterable<T>,
         immediatelyBindChanges: Boolean = false,
         onChanged: ((Iterable<T>) -> Unit)? = null
-    ): ReadWriteProperty<ObservableEntity, Iterable<T>> = ObservableEntityParentDelegate(
+    ): ReadWriteProperty<ObservableEntity, Iterable<T>> = ObservableEntityParentStateImpl(
         this,
         initialValue,
         null,
@@ -60,13 +60,13 @@ abstract class ObservableEntity : ObservableEntityParent {
     }
 
     @Synchronized
-    internal fun replaceWith(other: ObservableEntity) {
-        parents.forEach { it.replace(this, other) }
+    override fun onStateChanged(immediatelyBindChanges: Boolean) {
+        parents.forEach { it.onStateChanged(immediatelyBindChanges) }
     }
 
     @Synchronized
-    override fun onStateChanged(immediatelyBindChanges: Boolean) {
-        parents.forEach { it.onStateChanged(immediatelyBindChanges) }
+    internal fun replaceWith(newEntity: ObservableEntity) {
+        parents.forEach { it.replace(this, newEntity) }
     }
 
     @Synchronized

@@ -6,13 +6,13 @@ import kotlin.properties.ReadWriteProperty
 
 abstract class ObservableEntityParentViewModel : ComponentViewModel(), ObservableEntityParent {
 
-    private val delegates = ArrayList<ObservableEntityParentDelegate<ObservableEntityParentViewModel, *>>()
+    private val delegates = ArrayList<ObservableEntityParentStateImpl<ObservableEntityParentViewModel, *>>()
 
     protected fun <T : ObservableEntity?> observableEntity(
         initialValue: T,
         immediatelyBindChanges: Boolean = false,
         onChanged: ((T) -> Unit)? = null
-    ): ReadWriteProperty<ObservableEntityParentViewModel, T> = ObservableEntityParentDelegate(
+    ): ReadWriteProperty<ObservableEntityParentViewModel, T> = ObservableEntityParentStateImpl(
         this,
         initialValue,
         null,
@@ -24,7 +24,7 @@ abstract class ObservableEntityParentViewModel : ComponentViewModel(), Observabl
         initialValue: List<T>?,
         immediatelyBindChanges: Boolean = false,
         onChanged: ((List<T>?) -> Unit)? = null
-    ): ReadWriteProperty<ObservableEntityParentViewModel, List<T>?> = ObservableEntityParentDelegate(
+    ): ReadWriteProperty<ObservableEntityParentViewModel, List<T>?> = ObservableEntityParentStateImpl(
         this,
         initialValue,
         null,

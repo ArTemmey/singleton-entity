@@ -6,21 +6,24 @@ internal object GlobalStore {
 
     private val entities = HashMap<KClass<out ObservableEntity>, HashMap<Any, ObservableEntity>>()
 
-    fun add(observableEntity: ObservableEntity) {
-        val primaryProperty = observableEntity.primaryProperty ?: return
-        val map = entities[observableEntity::class]
-            ?: HashMap<Any, ObservableEntity>().also { entities[observableEntity::class] = it }
-        map[primaryProperty]?.replaceWith(observableEntity)
-        map[primaryProperty] = observableEntity
+    fun add(entity: ObservableEntity) {
+        val primaryProperty = entity.primaryProperty ?: return
+        val map = entities[entity::class]
+            ?: HashMap<Any, ObservableEntity>().also { entities[entity::class] = it }
+        val oldEntity = map[primaryProperty]
+        map[primaryProperty] = entity
+        oldEntity?.replaceWith(entity)
     }
 
-    fun remove(observableEntity: ObservableEntity) {
-        val primaryProperty = observableEntity.primaryProperty ?: return
-        val map = entities[observableEntity::class] ?: return
-        if (map[primaryProperty] === observableEntity) map.remove(primaryProperty)
-        if (map.isEmpty()) entities.remove(observableEntity::class)
+    fun remove(entity: ObservableEntity) {
+        val primaryProperty = entity.primaryProperty ?: return
+        val map = entities[entity::class] ?: return
+        if (map[primaryProperty] === entity) {
+            map.remove(primaryProperty)
+            if (map.isEmpty()) entities.remove(entity::class)
+        }
     }
 
-    fun contains(observableEntity: ObservableEntity) =
-        observableEntity.primaryProperty?.let { entities[observableEntity::class]?.get(it) } === observableEntity
+    fun contains(entity: ObservableEntity) =
+        entity.primaryProperty?.let { entities[entity::class]?.get(it) } === entity
 }
