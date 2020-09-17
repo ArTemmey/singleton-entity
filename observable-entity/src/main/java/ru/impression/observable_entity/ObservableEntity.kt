@@ -1,6 +1,6 @@
 package ru.impression.observable_entity
 
-import java.util.concurrent.ConcurrentLinkedQueue
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.properties.ReadWriteProperty
 
 abstract class ObservableEntity : ObservableEntityParent {
@@ -16,44 +16,33 @@ abstract class ObservableEntity : ObservableEntityParent {
     @Volatile
     private var wasGlobal = false
 
-    protected val delegates = ArrayList<ObservableEntityParentStateImpl<out ObservableEntity, *>>()
+    private val delegates = ArrayList<ObservableEntityParentDelegate<ObservableEntity, *>>()
 
-    private val parents = ConcurrentLinkedQueue<ObservableEntityParent>()
+    private val parents = ConcurrentHashMap<ObservableEntityParent, Boolean>()
 
     protected fun <T> state(
         initialValue: T,
         immediatelyBindChanges: Boolean = false,
         onChanged: ((T) -> Unit)? = null
     ): ReadWriteProperty<ObservableEntity, T> =
-        ObservableEntityStateImpl(this, initialValue, null, immediatelyBindChanges, onChanged)
+        ObservableEntityStateDelegate(this, initialValue, null, immediatelyBindChanges, onChanged)
 
-    protected fun <T : ObservableEntity> observableEntity(
+    protected fun <T : ObservableEntity?> observableEntity(
         initialValue: T,
-        immediatelyBindChanges: Boolean = false,
-        onChanged: ((T) -> Unit)? = null
-    ): ReadWriteProperty<ObservableEntity, T> = ObservableEntityParentStateImpl(
-        this,
-        initialValue,
-        null,
-        immediatelyBindChanges,
-        onChanged
-    ).also { delegates.add(it) }
+        observeChanges: Boolean = true
+    ) = ObservableEntityParentDelegate(this, initialValue, observeChanges)
+        .also { delegates.add(it) }
+
 
     protected fun <T : ObservableEntity> observableEntities(
-        initialValue: Iterable<T>,
-        immediatelyBindChanges: Boolean = false,
-        onChanged: ((Iterable<T>) -> Unit)? = null
-    ): ReadWriteProperty<ObservableEntity, Iterable<T>> = ObservableEntityParentStateImpl(
-        this,
-        initialValue,
-        null,
-        immediatelyBindChanges,
-        onChanged
-    ).also { delegates.add(it) }
+        initialValue: List<T>?,
+        observeChanges: Boolean = true
+    ) = ObservableEntityParentDelegate(this, initialValue, observeChanges)
+        .also { delegates.add(it) }
 
     @Synchronized
-    internal fun attach(parent: ObservableEntityParent) {
-        if (!parents.contains(parent)) parents.add(parent)
+    fun bind(parent: ObservableEntityParent, observeChanges: Boolean) {
+        if (!parents.contains(parent)) parents[parent] = observeChanges
         if (wasGlobal) {
             isGlobal = true
             wasGlobal = false
@@ -61,7 +50,7 @@ abstract class ObservableEntity : ObservableEntityParent {
     }
 
     @Synchronized
-    internal fun detach(parent: ObservableEntityParent) {
+    internal fun unbind(parent: ObservableEntityParent) {
         parents.remove(parent)
         if (parents.isEmpty()) {
             wasGlobal = isGlobal
@@ -71,12 +60,12 @@ abstract class ObservableEntity : ObservableEntityParent {
 
     @Synchronized
     override fun onStateChanged(immediatelyBindChanges: Boolean) {
-        parents.forEach { it.onStateChanged(immediatelyBindChanges) }
+        parents.forEach { if (it.value) it.key.onStateChanged(immediatelyBindChanges) }
     }
 
     @Synchronized
     internal fun replaceWith(newEntity: ObservableEntity) {
-        parents.forEach { it.replace(this, newEntity) }
+        parents.keys.forEach { it.replace(this, newEntity) }
     }
 
     @Synchronized

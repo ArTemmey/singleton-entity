@@ -11,35 +11,11 @@ abstract class CoroutineObservableEntity : ObservableEntity(),
         getInitialValue: suspend () -> T,
         immediatelyBindChanges: Boolean = false,
         onChanged: ((T?) -> Unit)? = null
-    ): ReadWriteProperty<CoroutineObservableEntity, T?> = ObservableEntityStateImpl(
+    ): ReadWriteProperty<CoroutineObservableEntity, T?> = ObservableEntityStateDelegate(
         this,
         null,
         getInitialValue,
         immediatelyBindChanges,
         onChanged
     )
-
-    protected fun <T : ObservableEntity> observableEntity(
-        getInitialValue: suspend () -> T?,
-        immediatelyBindChanges: Boolean = false,
-        onChanged: ((T?) -> Unit)? = null
-    ): ReadWriteProperty<CoroutineObservableEntity, T?> = ObservableEntityParentStateImpl(
-        this,
-        null,
-        getInitialValue,
-        immediatelyBindChanges,
-        onChanged
-    ).also { delegates.add(it) }
-
-    protected fun <T : ObservableEntity> observableEntities(
-        getInitialValue: suspend () -> Iterable<T>?,
-        immediatelyBindChanges: Boolean = false,
-        onChanged: ((Iterable<T>?) -> Unit)? = null
-    ): ReadWriteProperty<CoroutineObservableEntity, Iterable<T>?> = ObservableEntityParentStateImpl(
-        this,
-        null,
-        getInitialValue,
-        immediatelyBindChanges,
-        onChanged
-    ).also { delegates.add(it) }
 }

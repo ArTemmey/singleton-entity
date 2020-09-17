@@ -6,36 +6,25 @@ import kotlin.properties.ReadWriteProperty
 
 abstract class ObservableEntityParentViewModel : ComponentViewModel(), ObservableEntityParent {
 
-    private val delegates = ArrayList<ObservableEntityParentStateImpl<ObservableEntityParentViewModel, *>>()
+    private val delegates =
+        ArrayList<ObservableEntityParentDelegate<ObservableEntityParentViewModel, *>>()
 
     protected fun <T : ObservableEntity?> observableEntity(
         initialValue: T,
-        immediatelyBindChanges: Boolean = false,
-        onChanged: ((T) -> Unit)? = null
-    ): ReadWriteProperty<ObservableEntityParentViewModel, T> = ObservableEntityParentStateImpl(
-        this,
-        initialValue,
-        null,
-        immediatelyBindChanges,
-        onChanged
-    ).also { delegates.add(it) }
+        observeChanges: Boolean = true
+    ) = ObservableEntityParentDelegate(this, initialValue, observeChanges)
+        .also { delegates.add(it) }
 
     protected fun <T : ObservableEntity> observableEntities(
         initialValue: List<T>?,
-        immediatelyBindChanges: Boolean = false,
-        onChanged: ((List<T>?) -> Unit)? = null
-    ): ReadWriteProperty<ObservableEntityParentViewModel, List<T>?> = ObservableEntityParentStateImpl(
-        this,
-        initialValue,
-        null,
-        immediatelyBindChanges,
-        onChanged
-    ).also { delegates.add(it) }
+        observeChanges: Boolean = true
+    ) = ObservableEntityParentDelegate(this, initialValue, observeChanges)
+        .also { delegates.add(it) }
 
     override fun onLifecycleEvent(event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_CREATE -> delegates.forEach { it.attachCurrentValue() }
-            Lifecycle.Event.ON_DESTROY -> delegates.forEach { it.detachCurrentValue() }
+            Lifecycle.Event.ON_CREATE -> delegates.forEach { it.bindParentToCurrentValue() }
+            Lifecycle.Event.ON_DESTROY -> delegates.forEach { it.unbindParentFromCurrentValue() }
         }
     }
 

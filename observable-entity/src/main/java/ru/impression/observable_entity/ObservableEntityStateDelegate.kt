@@ -1,14 +1,14 @@
 package ru.impression.observable_entity
 
-import ru.impression.ui_generator_base.StateImpl
+import ru.impression.ui_generator_base.StateDelegate
 
-open class ObservableEntityStateImpl<R : ObservableEntityParent, T>(
+open class ObservableEntityStateDelegate<R : ObservableEntity, T>(
     parent: R,
     initialValue: T,
     getInitialValue: (suspend () -> T)?,
     immediatelyBindChanges: Boolean?,
     onChanged: ((T) -> Unit)?
-) : StateImpl<R, T>(
+) : StateDelegate<R, T>(
     parent,
     initialValue,
     getInitialValue,
@@ -19,6 +19,5 @@ open class ObservableEntityStateImpl<R : ObservableEntityParent, T>(
     @Synchronized
     override fun notifyStateChanged() {
         immediatelyBindChanges?.let { (parent as? ObservableEntity)?.onStateChanged(it) }
-        super.notifyStateChanged()
     }
 }

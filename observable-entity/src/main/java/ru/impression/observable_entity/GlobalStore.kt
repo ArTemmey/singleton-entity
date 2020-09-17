@@ -11,6 +11,7 @@ internal object GlobalStore {
         val map = entities[entity::class]
             ?: HashMap<Any, ObservableEntity>().also { entities[entity::class] = it }
         val oldEntity = map[primaryProperty]
+        if (oldEntity === entity) return
         map[primaryProperty] = entity
         oldEntity?.replaceWith(entity)
     }
