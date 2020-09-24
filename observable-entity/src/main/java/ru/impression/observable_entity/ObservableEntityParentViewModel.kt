@@ -23,8 +23,8 @@ abstract class ObservableEntityParentViewModel : ComponentViewModel(), Observabl
 
     override fun onLifecycleEvent(event: Lifecycle.Event) {
         when (event) {
-            Lifecycle.Event.ON_CREATE -> delegates.forEach { it.bindParentToCurrentValue() }
-            Lifecycle.Event.ON_DESTROY -> delegates.forEach { it.unbindParentFromCurrentValue() }
+            Lifecycle.Event.ON_CREATE -> delegates.forEach { it.onCreate() }
+            Lifecycle.Event.ON_DESTROY -> delegates.forEach { it.onDestroy() }
         }
     }
 

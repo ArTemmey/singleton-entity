@@ -12,12 +12,14 @@ class ObservableEntityParentDelegate<R : ObservableEntityParent, T>(
     private val observeChanges: Boolean
 ) : ReadWriteProperty<R, T> {
 
+    @Synchronized
     override fun getValue(thisRef: R, property: KProperty<*>) = value
 
     @Synchronized
     override fun setValue(thisRef: R, property: KProperty<*>, value: T) {
-        unbindParentFromValue(this.value)
-        bindParentToValue(value)
+        unbindParent()
+        this.value = value
+        bindParent()
     }
 
     @Synchronized
@@ -29,26 +31,26 @@ class ObservableEntityParentDelegate<R : ObservableEntityParent, T>(
     }
 
     @Synchronized
-    fun bindParentToCurrentValue() {
-        value?.let { bindParentToValue(it) }
+    fun onCreate() {
+        bindParent()
     }
 
     @Synchronized
-    fun unbindParentFromCurrentValue() {
-        value?.let { unbindParentFromValue(it) }
+    fun onDestroy() {
+        unbindParent()
     }
 
     @Synchronized
-    private fun bindParentToValue(value: T) {
-        when (value) {
+    private fun bindParent() {
+        when (val value = value) {
             is ObservableEntity -> value.bind(parent, observeChanges)
             is List<*> -> value.forEach { (it as? ObservableEntity)?.bind(parent, observeChanges) }
         }
     }
 
     @Synchronized
-    private fun unbindParentFromValue(value: T) {
-        when (value) {
+    private fun unbindParent() {
+        when (val value = value) {
             is ObservableEntity -> value.unbind(parent)
             is List<*> -> value.forEach { (it as? ObservableEntity)?.unbind(parent) }
         }
