@@ -5,10 +5,10 @@
 
         <variable
             name="data"
-            type="ru.impression.observable_entity_example.entity.Phone" />
+            type="ru.impression.syncable_entity_example.entity.Phone" />
     </data>
 
-    <ru.impression.observable_entity_example.presentation.PhoneViewComponent xmlns:android="http://schemas.android.com/apk/res/android"
+    <ru.impression.syncable_entity_example.presentation.PhoneViewComponent xmlns:android="http://schemas.android.com/apk/res/android"
         phone="@{data}"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content" />

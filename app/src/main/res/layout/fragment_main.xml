@@ -5,7 +5,7 @@
 
         <variable
             name="viewModel"
-            type="ru.impression.observable_entity_example.presentation.MainFragmentViewModel" />
+            type="ru.impression.syncable_entity_example.presentation.MainFragmentViewModel" />
     </data>
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
