@@ -18,7 +18,8 @@ class Phone(val id: Long, val name: String, val price: String, isLiked: Boolean)
 
     override val primaryProperty = id
 
-    var isLiked by state(isLiked) + syncable(isLiked) { mockedBackendApi.setPhoneLiked(id, it) }
+    var isLiked by state(isLiked) +
+            syncableProperty(isLiked) { mockedBackendApi.setPhoneLiked(id, it) }
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

@@ -10,13 +10,13 @@ internal fun <T> List<T>.replace(oldValueIndex: Int, newValue: T) = ArrayList<T>
     }
 }
 
-fun <T> KCallable<T>.getSyncableDelegate(receiver: CoroutineScope? = null): SyncableDelegate<CoroutineScope, T>? {
+fun <T> KCallable<T>.getSyncableDelegate(receiver: CoroutineScope? = null): SyncablePropertyDelegate<T>? {
     return when (this) {
-        is KProperty0<*> -> getDelegateFromSum<SyncableDelegate<CoroutineScope, T>>()
+        is KProperty0<*> -> getDelegateFromSum<SyncablePropertyDelegate<T>>()
         is KProperty1<*, *> -> {
             if (receiver == null) return null
             (this as KProperty1<Any?, *>)
-                .getDelegateFromSum<Any?, SyncableDelegate<CoroutineScope, T>>(receiver)
+                .getDelegateFromSum<Any?, SyncablePropertyDelegate<T>>(receiver)
         }
         else -> null
     }

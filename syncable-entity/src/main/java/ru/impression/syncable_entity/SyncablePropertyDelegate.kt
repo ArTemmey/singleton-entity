@@ -1,16 +1,15 @@
 package ru.impression.syncable_entity
 
-import kotlinx.coroutines.CoroutineScope
 import ru.impression.ui_generator_base.ComponentViewModel
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
-class SyncableDelegate<R : CoroutineScope, T>(
-    val parent: R,
+class SyncablePropertyDelegate<T>(
+    val parent: SyncableEntity,
     @Volatile
     private var sourceValue: T,
     private val sync: (suspend (T) -> Unit)?
-) : ReadWriteProperty<R, T> {
+) : ReadWriteProperty<SyncableEntity, T> {
 
     internal var value = sourceValue
 
@@ -29,10 +28,10 @@ class SyncableDelegate<R : CoroutineScope, T>(
     fun isSynced(value: T) = value == sourceValue
 
     @Synchronized
-    override fun getValue(thisRef: R, property: KProperty<*>) = value
+    override fun getValue(thisRef: SyncableEntity, property: KProperty<*>): T = value
 
     @Synchronized
-    override fun setValue(thisRef: R, property: KProperty<*>, value: T) {
+    override fun setValue(thisRef: SyncableEntity, property: KProperty<*>, value: T) {
         this.value = value
         if(!isSynced(value)) (parent as? SyncableEntity)?.isFullySynced = false
     }

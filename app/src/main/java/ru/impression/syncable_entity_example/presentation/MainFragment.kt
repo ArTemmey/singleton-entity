@@ -29,7 +29,7 @@ class MainFragmentViewModel : SyncableViewModel() {
 
 
     var popularPhones by state(mockedBackendApi::getPopularPhones) +
-            syncableEntities<Phone>(null, observeChanges = false)
+            syncableEntities<Phone>(null, observeState = false)
     val popularPhonesIsLoading get() = ::popularPhones.isLoading
     fun reloadPopularPhones() {
         ::popularPhones.reload()
@@ -37,7 +37,7 @@ class MainFragmentViewModel : SyncableViewModel() {
 
 
     var goodPhones by state(mockedBackendApi::getGoodPhones) +
-            syncableEntities<Phone>(null, observeChanges = false)
+            syncableEntities<Phone>(null, observeState = false)
     val goodPhonesIsLoading get() = ::goodPhones.isLoading
     fun reloadGoodPhones() {
         ::goodPhones.reload()

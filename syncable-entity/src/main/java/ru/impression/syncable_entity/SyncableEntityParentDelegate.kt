@@ -9,11 +9,11 @@ import kotlin.reflect.KProperty1
 class SyncableEntityParentDelegate<R : SyncableEntityParent, T>(
     private val parent: R,
     private var value: T,
-    private val observeChanges: Boolean
+    private val observeState: Boolean
 ) : ReadWriteProperty<R, T> {
 
     init {
-        value.entities?.forEach { it.isFullySynced = true }
+        onValueSet()
     }
 
     @Synchronized
@@ -23,7 +23,12 @@ class SyncableEntityParentDelegate<R : SyncableEntityParent, T>(
     override fun setValue(thisRef: R, property: KProperty<*>, value: T) {
         unbindParent()
         this.value = value
+        onValueSet()
         bindParent()
+    }
+
+    private fun onValueSet() {
+        value.entities?.forEach { it.isFullySynced = true }
     }
 
     @Synchronized
@@ -46,7 +51,7 @@ class SyncableEntityParentDelegate<R : SyncableEntityParent, T>(
 
     @Synchronized
     private fun bindParent() {
-        value.entities?.forEach { it.bind(parent, observeChanges) }
+        value.entities?.forEach { it.bind(parent, observeState) }
     }
 
     @Synchronized

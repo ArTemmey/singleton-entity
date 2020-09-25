@@ -9,15 +9,15 @@ abstract class SyncableViewModel : CoroutineViewModel(), SyncableEntityParent {
         ArrayList<SyncableEntityParentDelegate<SyncableViewModel, *>>()
 
     protected fun <T : SyncableEntity?> syncableEntity(
-        initialValue: T,
-        observeChanges: Boolean = true
-    ) = SyncableEntityParentDelegate(this, initialValue, observeChanges)
+        sourceValue: T,
+        observeState: Boolean = true
+    ) = SyncableEntityParentDelegate(this, sourceValue, observeState)
         .also { delegates.add(it) }
 
     protected fun <T : SyncableEntity> syncableEntities(
-        initialValue: List<T>?,
-        observeChanges: Boolean = true
-    ) = SyncableEntityParentDelegate(this, initialValue, observeChanges)
+        sourceValue: List<T>?,
+        observeState: Boolean = true
+    ) = SyncableEntityParentDelegate(this, sourceValue, observeState)
         .also { delegates.add(it) }
 
     override fun onLifecycleEvent(event: Lifecycle.Event) {
