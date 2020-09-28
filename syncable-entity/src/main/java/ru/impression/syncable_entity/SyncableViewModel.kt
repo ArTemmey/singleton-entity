@@ -8,15 +8,15 @@ abstract class SyncableViewModel : CoroutineViewModel(), SyncableEntityParent {
     private val delegates =
         ArrayList<SyncableEntityParentDelegate<SyncableViewModel, *>>()
 
-    protected fun <T : SyncableEntity?> syncableEntity(
+    override fun <T : SyncableEntity?> syncableEntity(
         sourceValue: T,
-        observeState: Boolean = true
+        observeState: Boolean
     ) = SyncableEntityParentDelegate(this, sourceValue, observeState)
         .also { delegates.add(it) }
 
-    protected fun <T : SyncableEntity> syncableEntities(
+    override fun <T : SyncableEntity> syncableEntities(
         sourceValue: List<T>?,
-        observeState: Boolean = true
+        observeState: Boolean
     ) = SyncableEntityParentDelegate(this, sourceValue, observeState)
         .also { delegates.add(it) }
 

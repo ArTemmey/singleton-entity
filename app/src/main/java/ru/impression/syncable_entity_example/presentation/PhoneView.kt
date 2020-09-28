@@ -2,10 +2,7 @@ package ru.impression.syncable_entity_example.presentation
 
 import android.widget.FrameLayout
 import kotlinx.coroutines.launch
-import ru.impression.kotlin_delegate_concatenator.plus
-import ru.impression.syncable_entity.SyncableViewModel
-import ru.impression.syncable_entity.isSyncing
-import ru.impression.syncable_entity.syncAndSet
+import ru.impression.syncable_entity.*
 import ru.impression.syncable_entity_example.databinding.ViewPhoneBinding
 import ru.impression.syncable_entity_example.entity.Phone
 import ru.impression.ui_generator_annotations.MakeComponent
@@ -19,7 +16,7 @@ class PhoneView : ComponentScheme<FrameLayout, PhoneViewModel>({ ViewPhoneBindin
 class PhoneViewModel : SyncableViewModel() {
 
     @Prop
-    var phone: Phone? by state<Phone?>(null) + syncableEntity<Phone?>(null)
+    var phone by state<Phone?>(null).andSyncableEntity()
     val phoneIsLikedIsSyncing get() = phone?.let { it::isLiked.isSyncing } == true
 
     fun likeOrUnlikePhone() {

@@ -2,13 +2,13 @@ package ru.impression.syncable_entity
 
 import ru.impression.ui_generator_base.StateDelegate
 
-open class SyncableEntityStateDelegate<R : SyncableEntity, T>(
-    parent: R,
+open class SyncableEntityStateDelegate<T>(
+    parent: SyncableEntity,
     initialValue: T,
     getInitialValue: (suspend () -> T)?,
     immediatelyBindChanges: Boolean?,
     onChanged: ((T) -> Unit)?
-) : StateDelegate<R, T>(
+) : StateDelegate<SyncableEntity, T>(
     parent,
     initialValue,
     getInitialValue,
@@ -18,6 +18,6 @@ open class SyncableEntityStateDelegate<R : SyncableEntity, T>(
 
     @Synchronized
     override fun notifyStateChanged() {
-        immediatelyBindChanges?.let { (parent as? SyncableEntity)?.onStateChanged(it) }
+        immediatelyBindChanges?.let { parent.onStateChanged(it) }
     }
 }

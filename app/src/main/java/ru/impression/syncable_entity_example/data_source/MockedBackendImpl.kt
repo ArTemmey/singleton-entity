@@ -12,7 +12,7 @@ class MockedBackendImpl @Inject constructor() : MockedBackendApi {
             Phone(0, "Samsung Galaxy S20", "700$", false),
             Phone(1, "IPhone XS Max", "999$", false),
             Phone(2, "OnePlus 8 Pro", "700$", false)
-        ).apply { forEach { it.isGlobal = true } }
+        )
     }
 
     override suspend fun getGoodPhones(): List<Phone> {
@@ -20,7 +20,7 @@ class MockedBackendImpl @Inject constructor() : MockedBackendApi {
         return listOf(
             Phone(2, "OnePlus 8 Pro", "700$", false),
             Phone(3, "Nokia 3310", "10$", false)
-        ).apply { forEach { it.isGlobal = true } }
+        )
     }
 
     override suspend fun setPhoneLiked(phoneId: Long, isLiked: Boolean) {

@@ -1,6 +1,5 @@
 package ru.impression.syncable_entity
 
-import ru.impression.ui_generator_base.ComponentViewModel
 import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
@@ -15,7 +14,7 @@ class SyncablePropertyDelegate<T>(
 
     @Volatile
     var isSyncing = false
-        set(value) {
+        internal set(value) {
             field = value
             onStateChanged()
         }
@@ -33,15 +32,14 @@ class SyncablePropertyDelegate<T>(
     @Synchronized
     override fun setValue(thisRef: SyncableEntity, property: KProperty<*>, value: T) {
         this.value = value
-        if(!isSynced(value)) (parent as? SyncableEntity)?.isFullySynced = false
     }
 
     suspend fun doSync(value: T) {
         if (isSynced(value)) return
         isSyncing = true
         sync?.invoke(value)
-        isSyncing = false
         onSyncCompleted(value)
+        isSyncing = false
     }
 
     @Synchronized
@@ -55,7 +53,6 @@ class SyncablePropertyDelegate<T>(
     }
 
     private fun onStateChanged() {
-        (parent as? ComponentViewModel)?.onStateChanged()
-            ?: (parent as? SyncableEntity)?.onStateChanged(false)
+        parent.onStateChanged(false)
     }
 }
