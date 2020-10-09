@@ -13,7 +13,7 @@ import ru.impression.ui_generator_base.ComponentScheme
 @MakeComponent
 class PhoneView : ComponentScheme<FrameLayout, PhoneViewModel>({ ViewPhoneBinding::class })
 
-class PhoneViewModel : SyncableViewModel() {
+class PhoneViewModel : SyncableEntityParentViewModel() {
 
     @Prop
     var phone by state<Phone?>(null).andSyncableEntity()

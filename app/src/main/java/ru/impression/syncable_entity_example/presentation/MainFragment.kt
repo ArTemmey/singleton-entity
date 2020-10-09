@@ -1,7 +1,7 @@
 package ru.impression.syncable_entity_example.presentation
 
 import androidx.fragment.app.Fragment
-import ru.impression.syncable_entity.SyncableViewModel
+import ru.impression.syncable_entity.SyncableEntityParentViewModel
 import ru.impression.syncable_entity.andSyncableEntities
 import ru.impression.syncable_entity_example.data_source.MockedBackendApi
 import ru.impression.syncable_entity_example.databinding.FragmentMainBinding
@@ -17,7 +17,7 @@ import javax.inject.Inject
 class MainFragment :
     ComponentScheme<Fragment, MainFragmentViewModel>({ FragmentMainBinding::class })
 
-class MainFragmentViewModel : SyncableViewModel() {
+class MainFragmentViewModel : SyncableEntityParentViewModel() {
 
     @Inject
     lateinit var mockedBackendApi: MockedBackendApi

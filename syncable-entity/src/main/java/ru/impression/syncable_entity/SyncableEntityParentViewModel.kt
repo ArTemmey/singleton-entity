@@ -3,10 +3,10 @@ package ru.impression.syncable_entity
 import androidx.lifecycle.Lifecycle
 import ru.impression.ui_generator_base.CoroutineViewModel
 
-abstract class SyncableViewModel : CoroutineViewModel(), SyncableEntityParent {
+abstract class SyncableEntityParentViewModel : CoroutineViewModel(), SyncableEntityParent {
 
     private val delegates =
-        ArrayList<SyncableEntityParentDelegate<SyncableViewModel, *>>()
+        ArrayList<SyncableEntityParentDelegate<SyncableEntityParentViewModel, *>>()
 
     override fun <T : SyncableEntity?> syncableEntity(
         sourceValue: T,
