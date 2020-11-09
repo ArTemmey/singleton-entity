@@ -4,7 +4,7 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KProperty
 
 class SyncablePropertyDelegate<T>(
-    val parent: SyncableEntity,
+    private val parent: SyncableEntity,
     @Volatile
     private var sourceValue: T,
     private val sync: (suspend (T) -> Unit)?
@@ -16,7 +16,7 @@ class SyncablePropertyDelegate<T>(
     var isSyncing = false
         internal set(value) {
             field = value
-            onStateChanged()
+            parent.onStateChanged()
         }
 
     val isSynced
@@ -38,21 +38,17 @@ class SyncablePropertyDelegate<T>(
         if (isSynced(value)) return
         isSyncing = true
         sync?.invoke(value)
-        onSyncCompleted(value)
+        onSynced(value)
         isSyncing = false
     }
 
     @Synchronized
-    fun onSyncCompleted() {
-        onSyncCompleted(value)
+    fun onCurrentValueSynced() {
+        onSynced(value)
     }
 
     @Synchronized
-    fun onSyncCompleted(value: T) {
+    fun onSynced(value: T) {
         sourceValue = value
-    }
-
-    private fun onStateChanged() {
-        parent.onStateChanged(false)
     }
 }

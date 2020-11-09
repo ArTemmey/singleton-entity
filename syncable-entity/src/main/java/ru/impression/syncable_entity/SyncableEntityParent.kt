@@ -1,6 +1,7 @@
 package ru.impression.syncable_entity
 
 interface SyncableEntityParent {
+
     fun <T : SyncableEntity?> syncableEntity(
         sourceValue: T,
         observeState: Boolean = true
@@ -11,6 +12,7 @@ interface SyncableEntityParent {
         observeState: Boolean = true
     ): SyncableEntityParentDelegate<out Any, List<T>?>
 
-    fun onStateChanged(immediatelyBindChanges: Boolean)
+    fun onStateChanged(immediatelyBindChanges: Boolean = false)
+
     fun replace(oldEntity: SyncableEntity, newEntity: SyncableEntity)
 }
