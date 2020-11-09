@@ -7,7 +7,8 @@ class SyncablePropertyDelegate<T>(
     private val parent: SyncableEntity,
     @Volatile
     private var sourceValue: T,
-    private val sync: (suspend (T) -> Unit)?
+    private val sync: (suspend (T) -> Unit)?,
+    private val notifyStateChanges: Boolean
 ) : ReadWriteProperty<SyncableEntity, T> {
 
     internal var value = sourceValue
@@ -16,7 +17,7 @@ class SyncablePropertyDelegate<T>(
     var isSyncing = false
         internal set(value) {
             field = value
-            parent.onStateChanged()
+            onStateChanged()
         }
 
     val isSynced
@@ -50,5 +51,9 @@ class SyncablePropertyDelegate<T>(
     @Synchronized
     fun onSynced(value: T) {
         sourceValue = value
+    }
+
+    fun onStateChanged() {
+        if (notifyStateChanges) parent.onStateChanged()
     }
 }

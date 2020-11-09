@@ -63,4 +63,4 @@ fun <R : Any, T : SyncableEntity?> StateDelegate<R, T>.andSyncableEntity(
 ) as SyncableEntityParentDelegate<R, T>)
 
 fun <T> SyncableEntityStateDelegate<T>.andSyncableProperty(sync: (suspend (T) -> Unit)? = null) =
-    this + SyncablePropertyDelegate(parent, value, sync)
+    this + SyncablePropertyDelegate(parent, value, sync, true)

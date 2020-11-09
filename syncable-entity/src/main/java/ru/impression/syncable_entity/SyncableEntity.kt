@@ -72,7 +72,7 @@ abstract class SyncableEntity : SyncableEntityParent,
         .also { delegates.add(it) }
 
     fun <T> syncableProperty(sourceValue: T, sync: (suspend (T) -> Unit)? = null) =
-        SyncablePropertyDelegate(this, sourceValue, sync)
+        SyncablePropertyDelegate(this, sourceValue, sync, false)
 
     @Synchronized
     internal fun bind(parent: SyncableEntityParent, observeState: Boolean) {
