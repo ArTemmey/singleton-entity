@@ -21,7 +21,7 @@ class Phone(val id: Long, val name: String, val price: String, isLiked: Boolean)
     var isLiked by state(isLiked).andSyncableProperty { mockedBackendApi.setPhoneLiked(id, it) }
 
     init {
-        isGlobal = true
+        isSingleton = true
     }
 
     override fun equals(other: Any?): Boolean {

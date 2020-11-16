@@ -11,10 +11,10 @@ abstract class SyncableEntity : SyncableEntityParent,
 
     open val primaryProperty: Any? = null
 
-    var isGlobal: Boolean
-        get() = GlobalStore.contains(this)
+    var isSingleton: Boolean
+        get() = SingletonEntities.contains(this)
         set(value) {
-            if (value) GlobalStore.add(this) else GlobalStore.remove(this)
+            if (value) SingletonEntities.add(this) else SingletonEntities.remove(this)
         }
 
     private val delegates = ArrayList<SyncableEntityParentDelegate<SyncableEntity, *>>()
@@ -82,9 +82,7 @@ abstract class SyncableEntity : SyncableEntityParent,
     @Synchronized
     internal fun unbind(parent: SyncableEntityParent) {
         parents.remove(parent)
-        if (parents.isEmpty()) {
-            isGlobal = false
-        }
+        if (parents.isEmpty()) isSingleton = false
     }
 
     @Synchronized

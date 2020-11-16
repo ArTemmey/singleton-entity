@@ -1,15 +1,17 @@
 package ru.impression.syncable_entity
 
+import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
-internal object GlobalStore {
+internal object SingletonEntities {
 
-    private val entities = HashMap<KClass<out SyncableEntity>, HashMap<Any, SyncableEntity>>()
+    private val entities =
+        ConcurrentHashMap<KClass<out SyncableEntity>, ConcurrentHashMap<Any, SyncableEntity>>()
 
     fun add(entity: SyncableEntity) {
         val primaryProperty = entity.primaryProperty ?: return
         val map = entities[entity::class]
-            ?: HashMap<Any, SyncableEntity>().also { entities[entity::class] = it }
+            ?: ConcurrentHashMap<Any, SyncableEntity>().also { entities[entity::class] = it }
         val oldEntity = map[primaryProperty]
         if (oldEntity === entity) return
         map[primaryProperty] = entity
