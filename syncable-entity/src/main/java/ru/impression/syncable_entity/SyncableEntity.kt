@@ -2,7 +2,10 @@ package ru.impression.syncable_entity
 
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import ru.impression.kotlin_delegate_concatenator.plus
+import ru.impression.ui_generator_base.StateDelegate
 import java.util.concurrent.ConcurrentHashMap
+import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KMutableProperty0
 import kotlin.reflect.jvm.reflect
 
@@ -17,7 +20,10 @@ abstract class SyncableEntity : SyncableEntityParent,
             if (value) SingletonEntities.add(this) else SingletonEntities.remove(this)
         }
 
-    private val delegates = ArrayList<SyncableEntityParentDelegate<SyncableEntity, *>>()
+    @Volatile
+    private var wasSingleton = false
+
+    private val delegates = ArrayList<SyncableEntityParentDelegate<*>>()
 
     private val parents = ConcurrentHashMap<SyncableEntityParent, Boolean>()
 
@@ -41,23 +47,11 @@ abstract class SyncableEntity : SyncableEntityParent,
 
     private val onSyncMultipleFuns = HashMap<List<KMutableProperty0<*>>, Function<*>>()
 
-    protected fun <T> state(
-        initialValue: T,
-        immediatelyBindChanges: Boolean = false,
-        onChanged: ((T) -> Unit)? = null
-    ) = SyncableEntityStateDelegate(this, initialValue, null, immediatelyBindChanges, onChanged)
+    protected fun <T> state(initialValue: T, onChanged: ((T) -> Unit)? = null) =
+        StateDelegate(this, initialValue, null, onChanged)
 
-    protected fun <T> state(
-        getInitialValue: suspend () -> T,
-        immediatelyBindChanges: Boolean = false,
-        onChanged: ((T?) -> Unit)? = null
-    ) = SyncableEntityStateDelegate(
-        this,
-        null,
-        getInitialValue,
-        immediatelyBindChanges,
-        onChanged
-    )
+    protected fun <T> state(getInitialValue: suspend () -> T, onChanged: ((T?) -> Unit)? = null) =
+        StateDelegate(this, null, getInitialValue, onChanged)
 
     override fun <T : SyncableEntity?> syncableEntity(
         sourceValue: T,
@@ -74,20 +68,39 @@ abstract class SyncableEntity : SyncableEntityParent,
     fun <T> syncableProperty(sourceValue: T, sync: (suspend (T) -> Unit)? = null) =
         SyncablePropertyDelegate(this, sourceValue, sync, false)
 
+    fun <T : SyncableEntity?> StateDelegate<SyncableEntity, T>.andSyncableEntity(observeState: Boolean = true) =
+        (this + syncableEntity(value, observeState)) as ReadWriteProperty<SyncableEntity, T>
+
+    fun <T : List<SyncableEntity>?> StateDelegate<SyncableEntity, T>.andSyncableEntities(
+        observeState: Boolean = false
+    ) = (this + (syncableEntities(value, observeState) as ReadWriteProperty<SyncableEntity, T>))
+            as ReadWriteProperty<SyncableEntity, T>
+
+    fun <T> StateDelegate<SyncableEntity, T>.andSyncableProperty(sync: (suspend (T) -> Unit)? = null) =
+        (this + SyncablePropertyDelegate(parent, value, sync, true))
+                as ReadWriteProperty<SyncableEntity, T>
+
     @Synchronized
     internal fun bind(parent: SyncableEntityParent, observeState: Boolean) {
         if (!parents.contains(parent)) parents[parent] = observeState
+        if (wasSingleton) {
+            isSingleton = true
+            wasSingleton = false
+        }
     }
 
     @Synchronized
     internal fun unbind(parent: SyncableEntityParent) {
         parents.remove(parent)
-        if (parents.isEmpty()) isSingleton = false
+        if (parents.isEmpty()) {
+            isSingleton = false
+            wasSingleton = true
+        }
     }
 
     @Synchronized
-    override fun onStateChanged(immediatelyBindChanges: Boolean) {
-        parents.forEach { if (it.value) it.key.onStateChanged(immediatelyBindChanges) }
+    override fun onStateChanged(renderImmediately: Boolean) {
+        parents.forEach { if (it.value) it.key.onStateChanged(renderImmediately) }
     }
 
     @Synchronized

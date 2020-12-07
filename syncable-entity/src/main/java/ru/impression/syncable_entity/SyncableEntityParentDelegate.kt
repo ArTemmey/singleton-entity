@@ -5,22 +5,23 @@ import kotlin.properties.ReadWriteProperty
 import kotlin.reflect.KMutableProperty1
 import kotlin.reflect.KProperty
 import kotlin.reflect.KProperty1
+import kotlin.reflect.full.declaredMemberProperties
 
-class SyncableEntityParentDelegate<R : Any, T>(
-    private val parent: R,
+class SyncableEntityParentDelegate<T>(
+    private val parent: SyncableEntityParent,
     private var value: T,
     private val observeState: Boolean
-) : ReadWriteProperty<R, T> {
+) : ReadWriteProperty<SyncableEntityParent, T> {
 
     init {
         bind()
     }
 
     @Synchronized
-    override fun getValue(thisRef: R, property: KProperty<*>) = value
+    override fun getValue(thisRef: SyncableEntityParent, property: KProperty<*>): T = value
 
     @Synchronized
-    override fun setValue(thisRef: R, property: KProperty<*>, value: T) {
+    override fun setValue(thisRef: SyncableEntityParent, property: KProperty<*>, value: T) {
         unbind()
         this.value = value
         bind()
@@ -28,29 +29,26 @@ class SyncableEntityParentDelegate<R : Any, T>(
 
     @Synchronized
     private fun setValueToProperty(value: T) {
-        (parent::class.members.firstOrNull {
-            (it as? KProperty1<R, *>)
-                ?.getDelegateFromSum<R, SyncableEntityParentDelegate<*, *>>(parent) == this
-        } as KMutableProperty1<R, T>?)?.set(parent, value)
+        (parent::class.declaredMemberProperties.firstOrNull {
+            (it as? KProperty1<SyncableEntityParent, *>)
+                ?.getDelegateFromSum<SyncableEntityParent, SyncableEntityParentDelegate<*>>(parent) == this
+        } as KMutableProperty1<SyncableEntityParent, T>?)?.set(parent, value)
     }
 
     @Synchronized
-    private fun bind() {
+    fun bind() {
         when (val currentValue = value) {
-            is SyncableEntity -> currentValue.bind(parent as SyncableEntityParent, observeState)
-            is List<*> -> currentValue.forEach {
-                (it as? SyncableEntity)?.bind(parent as SyncableEntityParent, observeState)
-            }
+            is SyncableEntity -> currentValue.bind(parent, observeState)
+            is List<*> ->
+                currentValue.forEach { (it as? SyncableEntity)?.bind(parent, observeState) }
         }
     }
 
     @Synchronized
     fun unbind() {
         when (val currentValue = value) {
-            is SyncableEntity -> currentValue.unbind(parent as SyncableEntityParent)
-            is List<*> -> currentValue.forEach {
-                (it as? SyncableEntity)?.unbind(parent as SyncableEntityParent)
-            }
+            is SyncableEntity -> currentValue.unbind(parent)
+            is List<*> -> currentValue.forEach { (it as? SyncableEntity)?.unbind(parent) }
         }
     }
 
@@ -58,8 +56,8 @@ class SyncableEntityParentDelegate<R : Any, T>(
     fun replace(oldEntity: SyncableEntity, newEntity: SyncableEntity) {
         when (val currentValue = value) {
             is SyncableEntity -> if (currentValue === oldEntity) setValueToProperty(newEntity as T)
-            is List<*> -> currentValue.indexOf(oldEntity).takeIf { it != -1 }
-                ?.let { setValueToProperty(currentValue.replace(it, newEntity) as T) }
+            is MutableList<*> -> (currentValue as MutableList<SyncableEntity>).indexOf(oldEntity)
+                .takeIf { it != -1 }?.let { currentValue.set(it, newEntity) }
         }
     }
 }

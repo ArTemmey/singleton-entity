@@ -38,22 +38,17 @@ android {
 }
 
 dependencies {
-    implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation project(':syncable-entity')
     implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
-    implementation 'androidx.appcompat:appcompat:1.1.0'
-    implementation 'androidx.core:core-ktx:1.3.0'
-    implementation 'androidx.constraintlayout:constraintlayout:1.1.3'
-    implementation 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-base:368a6b3b12'
-    implementation 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-annotations:368a6b3b12'
-    kapt 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-processor:368a6b3b1'
-    implementation 'com.github.ArtemiyDmtrvch:uigen-recycler-view:52ebc2910a'
+    implementation 'androidx.appcompat:appcompat:1.2.0'
+    implementation 'androidx.core:core-ktx:1.3.2'
+    implementation 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-base:a6ceed0b9f'
+    implementation 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-annotations:a6ceed0b9f'
+    kapt 'com.github.ArtemiyDmtrvch.ui-generator:ui-generator-processor:a6ceed0b9f'
+    implementation 'com.github.ArtemiyDmtrvch:uigen-recycler-view:a78e484301'
     implementation 'org.jetbrains.kotlinx:kotlinx-coroutines-core:1.3.7'
-    implementation "com.google.dagger:dagger:2.24"
+    implementation "com.google.dagger:dagger:2.27"
     implementation "com.google.dagger:dagger-android:2.22.1"
     kapt "com.google.dagger:dagger-compiler:2.22.1"
     kapt "com.google.dagger:dagger-android-processor:2.22.1"
-    testImplementation 'junit:junit:4.12'
-    androidTestImplementation 'androidx.test.ext:junit:1.1.1'
-    androidTestImplementation 'androidx.test.espresso:espresso-core:3.2.0'
 }

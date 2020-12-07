@@ -1,18 +1,11 @@
 package ru.impression.syncable_entity
 
 import kotlinx.coroutines.CoroutineScope
-import ru.impression.kotlin_delegate_concatenator.DelegateSum
 import ru.impression.kotlin_delegate_concatenator.getDelegateFromSum
-import ru.impression.kotlin_delegate_concatenator.plus
-import ru.impression.ui_generator_base.StateDelegate
-import kotlin.properties.ReadWriteProperty
-import kotlin.reflect.*
-
-internal fun <T> List<T>.replace(oldValueIndex: Int, newValue: T) = ArrayList<T>().apply {
-    this@replace.forEachIndexed { index, value ->
-        if (index == oldValueIndex) add(newValue) else add(value)
-    }
-}
+import kotlin.reflect.KCallable
+import kotlin.reflect.KMutableProperty0
+import kotlin.reflect.KProperty0
+import kotlin.reflect.KProperty1
 
 fun <T> KCallable<T>.getSyncableDelegate(receiver: CoroutineScope? = null): SyncablePropertyDelegate<T>? {
     return when (this) {
@@ -47,20 +40,3 @@ suspend fun <T> KMutableProperty0<T>.syncAndSet(value: T) {
         set(value)
     }
 }
-
-fun <R : Any, T : SyncableEntity> StateDelegate<R, List<T>?>.andSyncableEntities(
-    observeState: Boolean = true
-) = this + ((parent as SyncableEntityParent).syncableEntities(
-    value,
-    observeState
-) as SyncableEntityParentDelegate<R, List<T>?>)
-
-fun <R : Any, T : SyncableEntity?> StateDelegate<R, T>.andSyncableEntity(
-    observeState: Boolean = true
-) = this + ((parent as SyncableEntityParent).syncableEntity(
-    value,
-    observeState
-) as SyncableEntityParentDelegate<R, T>)
-
-fun <T> SyncableEntityStateDelegate<T>.andSyncableProperty(sync: (suspend (T) -> Unit)? = null) =
-    this + SyncablePropertyDelegate(parent, value, sync, true)

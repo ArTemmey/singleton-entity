@@ -1,18 +1,19 @@
 package ru.impression.syncable_entity
 
-interface SyncableEntityParent {
+import ru.impression.ui_generator_base.StateOwner
+
+
+interface SyncableEntityParent: StateOwner {
 
     fun <T : SyncableEntity?> syncableEntity(
         sourceValue: T,
         observeState: Boolean = true
-    ): SyncableEntityParentDelegate<out Any, T>
+    ): SyncableEntityParentDelegate<T>
 
     fun <T : SyncableEntity> syncableEntities(
         sourceValue: List<T>?,
         observeState: Boolean = true
-    ): SyncableEntityParentDelegate<out Any, List<T>?>
-
-    fun onStateChanged(immediatelyBindChanges: Boolean = false)
+    ): SyncableEntityParentDelegate<List<T>?>
 
     fun replace(oldEntity: SyncableEntity, newEntity: SyncableEntity)
 }
