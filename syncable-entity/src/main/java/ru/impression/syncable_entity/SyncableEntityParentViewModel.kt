@@ -11,45 +11,39 @@ import kotlin.properties.ReadWriteProperty
 abstract class SyncableEntityParentViewModel(attrs: IntArray? = null) : CoroutineViewModel(attrs),
     SyncableEntityParent {
 
-    private val delegates =
-        ArrayList<SyncableEntityParentDelegate<*>>()
+    private val delegates = ArrayList<Delegate<*>>()
 
-    private var delegatesWereUnbound = false
+    override fun <T> createDelegate(initialValue: T): SyncableEntityDelegate<SyncableEntityParent, T> =
+        Delegate(this, initialValue).also { delegates.add(it) }
 
-    override fun <T : SyncableEntity?> syncableEntity(
-        sourceValue: T,
-        observeState: Boolean
-    ) = SyncableEntityParentDelegate(this, sourceValue, observeState)
-        .also { delegates.add(it) }
+    fun <T : SyncableEntity?> StateDelegate<ComponentViewModel, T>.andSyncableEntity() =
+        (this + syncableEntity(value)) as ReadWriteProperty<ComponentViewModel, T>
 
-    override fun <T : SyncableEntity> syncableEntities(
-        sourceValue: List<T>?,
-        observeState: Boolean
-    ) = SyncableEntityParentDelegate(this, sourceValue, observeState)
-        .also { delegates.add(it) }
-
-    fun <T : SyncableEntity?> StateDelegate<ComponentViewModel, T>.andSyncableEntity(observeState: Boolean = true) =
-        (this + syncableEntity(value, observeState)) as ReadWriteProperty<ComponentViewModel, T>
-
-    fun <T : List<SyncableEntity>?> StateDelegate<CoroutineViewModel, T>.andSyncableEntities(
-        observeState: Boolean = false
-    ) = (this + (syncableEntities(value, observeState) as ReadWriteProperty<CoroutineViewModel, T>))
-            as ReadWriteProperty<CoroutineViewModel, T>
-
-    override fun replace(oldEntity: SyncableEntity, newEntity: SyncableEntity) {
-        delegates.forEach { it.replace(oldEntity, newEntity) }
-    }
+    fun <T : List<SyncableEntity>?> StateDelegate<CoroutineViewModel, T>.andSyncableEntities() =
+        (this + (syncableEntities(value) as ReadWriteProperty<CoroutineViewModel, T>))
+                as ReadWriteProperty<CoroutineViewModel, T>
 
     @CallSuper
     override fun onLifecycleEvent(event: Lifecycle.Event) {
-        if (event == Lifecycle.Event.ON_CREATE && delegatesWereUnbound)
-            delegates.forEach { it.bind() }
+        delegates.forEach { it.onLifecycleEvent(event) }
     }
 
-    @CallSuper
-    override fun onCleared() {
-        super.onCleared()
-        delegates.forEach { it.unbind() }
-        delegatesWereUnbound = true
+    private class Delegate<T>(parent: SyncableEntityParentViewModel, value: T) :
+        SyncableEntityParent.Delegate<T>(parent, value) {
+
+        private var isDestroyed = false
+
+        fun onLifecycleEvent(event: Lifecycle.Event) {
+            when (event) {
+                Lifecycle.Event.ON_CREATE -> {
+                    if (isDestroyed) bindParentToValue()
+                }
+                Lifecycle.Event.ON_DESTROY -> {
+                    unbindParentFromValue()
+                    isDestroyed = true
+                }
+            }
+        }
+
     }
 }

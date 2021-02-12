@@ -8,8 +8,9 @@ internal object SingletonEntities {
     private val entities =
         ConcurrentHashMap<KClass<out SyncableEntity>, ConcurrentHashMap<Any, SyncableEntity>>()
 
+    @Synchronized
     fun add(entity: SyncableEntity) {
-        val primaryProperty = entity.primaryProperty ?: return
+        val primaryProperty = entity.id ?: return
         val map = entities[entity::class]
             ?: ConcurrentHashMap<Any, SyncableEntity>().also { entities[entity::class] = it }
         val oldEntity = map[primaryProperty]
@@ -18,8 +19,9 @@ internal object SingletonEntities {
         oldEntity?.replaceWith(entity)
     }
 
+    @Synchronized
     fun remove(entity: SyncableEntity) {
-        val primaryProperty = entity.primaryProperty ?: return
+        val primaryProperty = entity.id ?: return
         val map = entities[entity::class] ?: return
         if (map[primaryProperty] === entity) {
             map.remove(primaryProperty)
@@ -27,6 +29,7 @@ internal object SingletonEntities {
         }
     }
 
+    @Synchronized
     fun contains(entity: SyncableEntity) =
-        entity.primaryProperty?.let { entities[entity::class]?.get(it) } === entity
+        entity.id?.let { entities[entity::class]?.get(it) } === entity
 }

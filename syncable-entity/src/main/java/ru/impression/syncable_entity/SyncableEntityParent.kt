@@ -1,19 +1,32 @@
 package ru.impression.syncable_entity
 
 import ru.impression.ui_generator_base.StateOwner
+import kotlin.reflect.KProperty
 
+interface SyncableEntityParent : StateOwner {
 
-interface SyncableEntityParent: StateOwner {
+    fun <T> createDelegate(initialValue: T): SyncableEntityDelegate<SyncableEntityParent, T> =
+        Delegate(this, initialValue)
 
-    fun <T : SyncableEntity?> syncableEntity(
-        sourceValue: T,
-        observeState: Boolean = true
-    ): SyncableEntityParentDelegate<T>
+    open class Delegate<T>(parent: SyncableEntityParent, value: T) :
+        SyncableEntityDelegate<SyncableEntityParent, T>(parent, value) {
 
-    fun <T : SyncableEntity> syncableEntities(
-        sourceValue: List<T>?,
-        observeState: Boolean = true
-    ): SyncableEntityParentDelegate<List<T>?>
+        init {
+            bindParentToValue()
+        }
 
-    fun replace(oldEntity: SyncableEntity, newEntity: SyncableEntity)
+        override fun setValue(thisRef: SyncableEntityParent, property: KProperty<*>, value: T) {
+            unbindParentFromValue()
+            super.setValue(thisRef, property, value)
+            bindParentToValue()
+        }
+
+        protected fun bindParentToValue() {
+            (value as? SyncableEntity)?.addParent(parent)
+        }
+
+        protected fun unbindParentFromValue() {
+            (value as? SyncableEntity)?.removeParent(parent)
+        }
+    }
 }

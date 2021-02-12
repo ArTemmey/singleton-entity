@@ -1,31 +1,24 @@
 package ru.impression.syncable_entity_example.presentation
 
 import androidx.fragment.app.Fragment
+import org.koin.core.component.KoinComponent
+import org.koin.core.component.inject
 import ru.impression.syncable_entity.SyncableEntityParentViewModel
-import ru.impression.syncable_entity_example.data_source.MockedBackendApi
 import ru.impression.syncable_entity_example.databinding.FragmentMainBinding
 import ru.impression.syncable_entity_example.databinding.ItemPhoneBinding
-import ru.impression.syncable_entity_example.di.daggerComponent
-import ru.impression.syncable_entity_example.entity.Phone
+import ru.impression.syncable_entity_example.gateway.MockedBackendApi
 import ru.impression.ui_generator_annotations.MakeComponent
 import ru.impression.ui_generator_base.ComponentScheme
 import ru.impression.ui_generator_base.isLoading
 import ru.impression.ui_generator_base.reload
-import javax.inject.Inject
 
 @MakeComponent
 class MainFragment :
     ComponentScheme<Fragment, MainFragmentViewModel>({ FragmentMainBinding::class })
 
-class MainFragmentViewModel : SyncableEntityParentViewModel() {
+class MainFragmentViewModel : SyncableEntityParentViewModel(), KoinComponent {
 
-    @Inject
-    lateinit var mockedBackendApi: MockedBackendApi
-
-    init {
-        daggerComponent.inject(this)
-    }
-
+    private val mockedBackendApi by inject<MockedBackendApi>()
 
     var popularPhones by state(mockedBackendApi::getPopularPhones).andSyncableEntities()
     val popularPhonesIsLoading get() = ::popularPhones.isLoading

@@ -1,4 +1,4 @@
-package ru.impression.syncable_entity_example.data_source
+package ru.impression.syncable_entity_example.gateway
 
 import ru.impression.syncable_entity_example.entity.Phone
 

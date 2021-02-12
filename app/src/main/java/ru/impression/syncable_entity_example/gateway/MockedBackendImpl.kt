@@ -1,10 +1,9 @@
-package ru.impression.syncable_entity_example.data_source
+package ru.impression.syncable_entity_example.gateway
 
 import kotlinx.coroutines.delay
 import ru.impression.syncable_entity_example.entity.Phone
-import javax.inject.Inject
 
-class MockedBackendImpl @Inject constructor() : MockedBackendApi {
+class MockedBackendImpl : MockedBackendApi {
 
     override suspend fun getPopularPhones(): MutableList<Phone> {
         delay(1000)
