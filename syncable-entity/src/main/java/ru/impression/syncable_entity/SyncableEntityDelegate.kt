@@ -27,20 +27,12 @@ open class SyncableEntityDelegate<R : Any, T>(
     }
 
     @Synchronized
-    private fun setValueToProperty(value: T) {
-        (parent::class.declaredMemberProperties.firstOrNull {
-            (it as? KProperty1<R, T>)
-                ?.getDelegateFromSum<R, SyncableEntityDelegate<R, T>>(parent) == this
-        } as? KMutableProperty1<R, T>?)?.set(parent, value)
-    }
-
-    @Synchronized
-    private fun bindToValue() {
+    protected fun bindToValue() {
         forEach { it.addParentDelegate(this) }
     }
 
     @Synchronized
-    private fun unbindFromValue() {
+    protected fun unbindFromValue() {
         forEach { it.removeParentDelegate(this) }
     }
 
@@ -58,6 +50,25 @@ open class SyncableEntityDelegate<R : Any, T>(
             is SyncableEntity -> if (currentValue === oldEntity) setValueToProperty(newEntity as T)
             is MutableList<*> -> (currentValue as MutableList<SyncableEntity>).indexOf(oldEntity)
                 .takeIf { it != -1 }?.let { currentValue.set(it, newEntity) }
+        }
+    }
+
+    @Synchronized
+    private fun setValueToProperty(value: T) {
+        (parent::class.declaredMemberProperties.firstOrNull {
+            (it as? KProperty1<R, T>)
+                ?.getDelegateFromSum<R, SyncableEntityDelegate<R, T>>(parent) == this
+        } as? KMutableProperty1<R, T>?)?.set(parent, value)
+    }
+
+    @Synchronized
+    protected fun refreshValue() {
+        forEach { oldEntity ->
+            val id = oldEntity.id
+            if (oldEntity.isSingleton && id != null) {
+                val newEntity = SingletonEntities.get(oldEntity::class, id)
+                if (newEntity != null && newEntity !== oldEntity) replace(oldEntity, newEntity)
+            }
         }
     }
 }

@@ -9,6 +9,9 @@ internal object SingletonEntities {
         ConcurrentHashMap<KClass<out SyncableEntity>, ConcurrentHashMap<Any, SyncableEntity>>()
 
     @Synchronized
+    fun get(entityClass: KClass<out SyncableEntity>, id: Any) = entities[entityClass]?.get(id)
+
+    @Synchronized
     fun add(entity: SyncableEntity) {
         val primaryProperty = entity.id ?: return
         val map = entities[entity::class]

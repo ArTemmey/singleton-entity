@@ -15,16 +15,19 @@ interface SyncableEntityParent : StateOwner {
             bindParentToValue()
         }
 
+        @Synchronized
         override fun setValue(thisRef: SyncableEntityParent, property: KProperty<*>, value: T) {
             unbindParentFromValue()
             super.setValue(thisRef, property, value)
             bindParentToValue()
         }
 
+        @Synchronized
         protected fun bindParentToValue() {
             (value as? SyncableEntity)?.addParent(parent)
         }
 
+        @Synchronized
         protected fun unbindParentFromValue() {
             (value as? SyncableEntity)?.removeParent(parent)
         }

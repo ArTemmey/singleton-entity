@@ -11,7 +11,7 @@ import kotlin.properties.ReadWriteProperty
 abstract class SyncableEntityParentViewModel(attrs: IntArray? = null) : CoroutineViewModel(attrs),
     SyncableEntityParent {
 
-    private val delegates = ArrayList<Delegate<*>>()
+    private val delegates = HashSet<Delegate<*>>()
 
     override fun <T> createDelegate(initialValue: T): SyncableEntityDelegate<SyncableEntityParent, T> =
         Delegate(this, initialValue).also { delegates.add(it) }
@@ -28,22 +28,43 @@ abstract class SyncableEntityParentViewModel(attrs: IntArray? = null) : Coroutin
         delegates.forEach { it.onLifecycleEvent(event) }
     }
 
+    @CallSuper
+    override fun onCleared() {
+        super.onCleared()
+        delegates.forEach { it.onCleared() }
+    }
+
     private class Delegate<T>(parent: SyncableEntityParentViewModel, value: T) :
         SyncableEntityParent.Delegate<T>(parent, value) {
 
-        private var isDestroyed = false
+        private var isUnbound = false
+
+        private var parentIsUnbound = false
 
         fun onLifecycleEvent(event: Lifecycle.Event) {
             when (event) {
                 Lifecycle.Event.ON_CREATE -> {
-                    if (isDestroyed) bindParentToValue()
+                    if (isUnbound) {
+                        isUnbound = false
+                        refreshValue()
+                        bindToValue()
+                    }
+                    if (parentIsUnbound) {
+                        parentIsUnbound = false
+                        bindParentToValue()
+                    }
                 }
+
                 Lifecycle.Event.ON_DESTROY -> {
                     unbindParentFromValue()
-                    isDestroyed = true
+                    parentIsUnbound = true
                 }
             }
         }
 
+        fun onCleared() {
+            unbindFromValue()
+            isUnbound = true
+        }
     }
 }
