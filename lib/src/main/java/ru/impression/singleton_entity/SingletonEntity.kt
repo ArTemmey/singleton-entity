@@ -38,23 +38,3 @@ class SingletonEntityImpl(override val id: Any) : SingletonEntity,
         parents.forEach { it.replace(this, newEntity) }
     }
 }
-
-//class Cart(override val id: String) : SingletonEntity by SingletonEntityImpl(id)
-//
-//class OrderDraft(override val id: String, cart: Cart) : SingletonEntity by SingletonEntityImpl(id) {
-//
-//    var cart by singletonEntity(cart)
-//
-//}
-//
-//class ViewModel : SingletonEntityParent by SingletonEntityParentImpl() {
-//    var orderDraft by singletonEntity<OrderDraft?>(null)
-//
-//    fun f() {
-//        orderDraft = OrderDraft("123", Cart("123"))
-//    }
-//
-//    fun clear() {
-//        detachFromEntities()
-//    }
-//}
