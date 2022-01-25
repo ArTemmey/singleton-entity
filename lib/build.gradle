@@ -1,0 +1,57 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'maven-publish'
+
+group = "com.github.ArtemiyDmtrvch"
+
+android {
+    compileSdkVersion 31
+
+    defaultConfig {
+        minSdkVersion 17
+        targetSdkVersion 31
+
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        consumerProguardFiles 'consumer-rules.pro'
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+
+}
+
+dependencies {
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk7:$kotlin_version"
+    testImplementation 'junit:junit:4.13.2'
+}
+
+afterEvaluate {
+    publishing {
+        repositories {
+            maven { url 'https://jitpack.io' }
+        }
+        publications {
+            // Creates a Maven publication called "release".
+            pub(MavenPublication) {
+                // Applies the component for the release build variant.
+                from components.release
+                artifact(sourceJar)
+
+                // You can then customize attributes of the publication as shown below.
+                groupId = "com.github.ArtemiyDmtrvch"
+                artifactId = 'singleton-entity'
+                version = '1.0'
+            }
+        }
+    }
+}
+
+task sourceJar(type: Jar) {
+    from android.sourceSets.main.java.srcDirs
+    classifier "sources"
+}
