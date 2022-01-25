@@ -11,25 +11,25 @@ object EntityStore {
     @Synchronized
     fun get(entityClass: KClass<out SingletonEntity>, id: Any) = entities[entityClass]?.get(id)
 
-    @Synchronized
     fun put(entity: SingletonEntity) {
         put(entity, abortIfAbsent = false)
     }
 
-    @Synchronized
     fun replaceIfExists(entity: SingletonEntity) {
         put(entity, abortIfAbsent = true)
     }
 
-    @Synchronized
     private fun put(entity: SingletonEntity, abortIfAbsent: Boolean) {
-        val id = entity.id
-        val map = entities[entity::class]
-            ?: ConcurrentHashMap<Any, SingletonEntity>().also { entities[entity::class] = it }
-        val oldEntity = map[id]
-        if (abortIfAbsent && oldEntity == null) return
-        if (oldEntity === entity) return
-        map[id] = entity
+        val oldEntity = synchronized(this) {
+            val id = entity.id
+            val map = entities[entity::class]
+                ?: ConcurrentHashMap<Any, SingletonEntity>().also { entities[entity::class] = it }
+            val oldEntity = map[id]
+            if (abortIfAbsent && oldEntity == null) return
+            if (oldEntity === entity) return
+            map[id] = entity
+            oldEntity
+        }
         oldEntity?.replaceWith(entity)
     }
 

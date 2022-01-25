@@ -29,24 +29,25 @@ class SingletonEntityImpl(override val id: Any) : SingletonEntity,
 
     private val parents = CopyOnWriteArrayList<SingletonEntityParent>()
 
-    @Synchronized
     override fun addParent(parent: SingletonEntityParent) {
-        if (!parents.contains(parent)) {
-            parents.add(parent)
-            EntityStore.put(instance)
+        synchronized(this) {
+            if (!parents.contains(parent)) parents.add(parent)
         }
+        EntityStore.put(instance)
     }
 
-    @Synchronized
     override fun removeParent(parent: SingletonEntityParent) {
-        parents.remove(parent)
-        if (parents.isEmpty()) {
+        if (
+            synchronized(this) {
+                parents.remove(parent)
+                parents.isEmpty()
+            }
+        ) {
             EntityStore.remove(instance)
             detachFromEntities()
         }
     }
 
-    @Synchronized
     override fun replaceWith(newEntity: SingletonEntity) {
         parents.forEach { it.replace(instance, newEntity) }
     }
