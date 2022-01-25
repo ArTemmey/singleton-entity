@@ -1,5 +1,7 @@
 package ru.impression.singleton_entity
 
+import java.util.concurrent.CopyOnWriteArrayList
+
 interface SingletonEntity : SingletonEntityParent {
     val id: Any
 
@@ -15,6 +17,7 @@ interface SingletonEntity : SingletonEntityParent {
 class SingletonEntityImpl(override val id: Any) : SingletonEntity,
     SingletonEntityParent by SingletonEntityParentImpl() {
 
+    @Volatile
     private var _instance: SingletonEntity? = null
 
     override var instance: SingletonEntity
@@ -24,8 +27,9 @@ class SingletonEntityImpl(override val id: Any) : SingletonEntity,
             EntityStore.replaceIfExists(value)
         }
 
-    private val parents = ArrayList<SingletonEntityParent>()
+    private val parents = CopyOnWriteArrayList<SingletonEntityParent>()
 
+    @Synchronized
     override fun addParent(parent: SingletonEntityParent) {
         if (!parents.contains(parent)) {
             parents.add(parent)
@@ -33,6 +37,7 @@ class SingletonEntityImpl(override val id: Any) : SingletonEntity,
         }
     }
 
+    @Synchronized
     override fun removeParent(parent: SingletonEntityParent) {
         parents.remove(parent)
         if (parents.isEmpty()) {
@@ -41,6 +46,7 @@ class SingletonEntityImpl(override val id: Any) : SingletonEntity,
         }
     }
 
+    @Synchronized
     override fun replaceWith(newEntity: SingletonEntity) {
         parents.forEach { it.replace(instance, newEntity) }
     }

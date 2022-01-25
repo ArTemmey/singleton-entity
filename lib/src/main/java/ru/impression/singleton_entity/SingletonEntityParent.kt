@@ -1,5 +1,7 @@
 package ru.impression.singleton_entity
 
+import java.util.concurrent.CopyOnWriteArrayList
+
 interface SingletonEntityParent {
     fun replace(oldEntity: SingletonEntity, newEntity: SingletonEntity)
     fun <T : SingletonEntity?> singletonEntity(initialValue: T): SingletonEntityDelegate<T>
@@ -8,11 +10,12 @@ interface SingletonEntityParent {
 
 class SingletonEntityParentImpl : SingletonEntityParent {
 
-    private val delegates = ArrayList<SingletonEntityDelegate<*>>()
+    private val delegates = CopyOnWriteArrayList<SingletonEntityDelegate<*>>()
 
     override fun <T : SingletonEntity?> singletonEntity(initialValue: T) =
         SingletonEntityDelegate(this, initialValue).also { delegates.add(it) }
 
+    @Synchronized
     override fun replace(oldEntity: SingletonEntity, newEntity: SingletonEntity) {
         delegates.forEach {
             if (it.value === oldEntity)
@@ -20,6 +23,7 @@ class SingletonEntityParentImpl : SingletonEntityParent {
         }
     }
 
+    @Synchronized
     override fun detachFromEntities() {
         delegates.forEach { it.value?.removeParent(this) }
     }

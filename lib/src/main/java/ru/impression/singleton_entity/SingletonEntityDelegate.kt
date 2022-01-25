@@ -8,6 +8,7 @@ class SingletonEntityDelegate<T : SingletonEntity?>(
     initialValue: T
 ) : ReadWriteProperty<SingletonEntityParent, T> {
 
+    @Volatile
     var value = initialValue
         private set
 
