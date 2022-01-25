@@ -1,3 +1,3 @@
 rootProject.name='SyncableEntity'
-include ':app'
+//include ':app'
 include ':lib'
