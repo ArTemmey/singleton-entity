@@ -1,23 +1,26 @@
 import junit.framework.Assert.assertTrue
 import ru.impression.singleton_entity.SingletonEntity
 import ru.impression.singleton_entity.SingletonEntityImpl
+import ru.impression.singleton_entity.SingletonEntityList
 import java.util.*
 
 class SimpleTest {
     @org.junit.Test
     fun test() {
-        var sample: Sample? = Sample()
-        val map: WeakHashMap<Sample, Any> = WeakHashMap()
+//        var sample: Sample? = Sample()
+//        val map: WeakHashMap<Sample, Any> = WeakHashMap()
+//
+//        map[sample] = Any()
+//        assertTrue(map.containsKey(sample))
+//
+//        sample = null
+//        System.gc()
+//
+//        Thread.sleep(10000)
+//
+//        println(map)
 
-        map[sample] = Any()
-        assertTrue(map.containsKey(sample))
-
-        sample = null
-        System.gc()
-
-        Thread.sleep(10000)
-
-        println(map)
+        SingletonEntityList<DemoEntity>().apply { add(DemoEntity("")) }
     }
 
 }

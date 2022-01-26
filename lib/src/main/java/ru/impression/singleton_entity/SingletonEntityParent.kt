@@ -23,7 +23,9 @@ class DefaultSingletonEntityParentImpl : DefaultSingletonEntityParent {
     }
 }
 
-class SingletonEntityList<T : SingletonEntity> : ArrayList<T>(), SingletonEntityParent {
+class SingletonEntityList<T : SingletonEntity> @JvmOverloads constructor(c: Collection<T>? = null) :
+    ArrayList<T>(c ?: emptyList()),
+    SingletonEntityParent {
 
     init {
         forEach { it.addParent(this) }
@@ -87,3 +89,5 @@ class SingletonEntityList<T : SingletonEntity> : ArrayList<T>(), SingletonEntity
         newEntity.addParent(this)
     }
 }
+
+fun <T : SingletonEntity> List<T>.toSingletonEntityList() = SingletonEntityList(this)
