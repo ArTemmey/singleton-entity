@@ -15,7 +15,7 @@ interface SingletonEntity : SingletonEntityParent {
 }
 
 class SingletonEntityImpl(override val id: Any) : SingletonEntity,
-    SingletonEntityParent by SingletonEntityParentImpl() {
+    DefaultSingletonEntityParent by DefaultSingletonEntityParentImpl() {
 
     @Volatile
     private var _instance: SingletonEntity? = null
@@ -30,22 +30,12 @@ class SingletonEntityImpl(override val id: Any) : SingletonEntity,
     private val parents = CopyOnWriteArrayList<SingletonEntityParent>()
 
     override fun addParent(parent: SingletonEntityParent) {
-        synchronized(this) {
-            if (!parents.contains(parent)) parents.add(parent)
-        }
+        if (!parents.contains(parent)) parents.add(parent)
         EntityStore.put(instance)
     }
 
     override fun removeParent(parent: SingletonEntityParent) {
-        if (
-            synchronized(this) {
-                parents.remove(parent)
-                parents.isEmpty()
-            }
-        ) {
-            EntityStore.remove(instance)
-            detachFromEntities()
-        }
+        parents.remove(parent)
     }
 
     override fun replaceWith(newEntity: SingletonEntity) {

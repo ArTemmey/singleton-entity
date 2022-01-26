@@ -1,15 +1,13 @@
 package ru.impression.singleton_entity
 
+import java.util.*
 import java.util.concurrent.ConcurrentHashMap
 import kotlin.reflect.KClass
 
 object EntityStore {
 
     private val entities =
-        ConcurrentHashMap<KClass<out SingletonEntity>, ConcurrentHashMap<Any, SingletonEntity>>()
-
-    @Synchronized
-    fun get(entityClass: KClass<out SingletonEntity>, id: Any) = entities[entityClass]?.get(id)
+        ConcurrentHashMap<KClass<out SingletonEntity>, WeakHashMap<SingletonEntity, Any>>()
 
     fun put(entity: SingletonEntity) {
         put(entity, abortIfAbsent = false)
@@ -21,33 +19,15 @@ object EntityStore {
 
     private fun put(entity: SingletonEntity, abortIfAbsent: Boolean) {
         val oldEntity = synchronized(this) {
-            val id = entity.id
+            val entityId = entity.id
             val map = entities[entity::class]
-                ?: ConcurrentHashMap<Any, SingletonEntity>().also { entities[entity::class] = it }
-            val oldEntity = map[id]
-            if (abortIfAbsent && oldEntity == null) return
+                ?: WeakHashMap<SingletonEntity, Any>().also { entities[entity::class] = it }
+            val oldEntity = map.keys.firstOrNull { it.id == entityId }
+            if (oldEntity == null && abortIfAbsent) return
             if (oldEntity === entity) return
-            map[id] = entity
+            map[entity] = Any()
             oldEntity
         }
         oldEntity?.replaceWith(entity)
     }
-
-
-    @Synchronized
-    fun remove(entity: SingletonEntity) {
-        val id = entity.id
-        val map = entities[entity::class] ?: return
-        if (map[id] === entity) {
-            map.remove(id)
-            if (map.isEmpty()) entities.remove(entity::class)
-        }
-    }
-
-    @Synchronized
-    fun contains(entity: SingletonEntity) = entities[entity::class]?.get(entity.id) === entity
-
-    @Synchronized
-    fun contains(entityClass: KClass<out SingletonEntity>, entityId: Any) =
-        entities[entityClass]?.get(entityId) != null
 }
