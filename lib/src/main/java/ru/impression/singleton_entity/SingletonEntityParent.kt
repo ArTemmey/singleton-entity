@@ -90,4 +90,4 @@ class SingletonEntityList<T : SingletonEntity> @JvmOverloads constructor(c: Coll
     }
 }
 
-fun <T : SingletonEntity> List<T>.toSingletonEntityList() = SingletonEntityList(this)
+fun <T : SingletonEntity> Collection<T>.toSingletonEntityList() = SingletonEntityList(this)
