@@ -3,7 +3,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'maven-publish'
 
-group = "com.github.ArtemiyDmtrvch"
+group = "com.github.ArTemmey"
 
 android {
     compileSdkVersion 31
@@ -43,8 +43,9 @@ afterEvaluate {
                 artifact(sourceJar)
 
                 // You can then customize attributes of the publication as shown below.
-                groupId = "com.github.ArtemiyDmtrvch"
+                groupId = "com.github.ArTemmey"
                 artifactId = 'singleton-entity'
+                version = "LOCAL"
             }
         }
     }

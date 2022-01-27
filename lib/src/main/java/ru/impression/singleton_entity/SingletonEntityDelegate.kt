@@ -26,6 +26,7 @@ class SingletonEntityDelegate<T : SingletonEntity?>(
         setValue(value)
     }
 
+    @Synchronized
     fun setValue(value: T) {
         this.value?.removeParent(parent)
         this.value = value

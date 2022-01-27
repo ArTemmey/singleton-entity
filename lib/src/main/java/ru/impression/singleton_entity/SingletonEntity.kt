@@ -1,11 +1,14 @@
 package ru.impression.singleton_entity
 
+import java.lang.ref.WeakReference
 import java.util.concurrent.CopyOnWriteArrayList
 
 interface SingletonEntity : SingletonEntityParent {
     val id: Any
 
     var instance: SingletonEntity
+
+    val parents: List<WeakReference<SingletonEntityParent>>
 
     fun replaceWith(newEntity: SingletonEntity)
 
@@ -24,21 +27,31 @@ class SingletonEntityImpl(override val id: Any) : SingletonEntity,
         get() = _instance!!
         set(value) {
             _instance = value
-            EntityStore.replaceIfExists(value)
+            SingletonEntityStore.put(value)
         }
 
-    private val parents = CopyOnWriteArrayList<SingletonEntityParent>()
+    override val parents = CopyOnWriteArrayList<WeakReference<SingletonEntityParent>>()
 
+    @Synchronized
     override fun addParent(parent: SingletonEntityParent) {
-        if (!parents.contains(parent)) parents.add(parent)
-        EntityStore.put(instance)
+        parents.removeAll { it.get() == null }
+        if (parents.firstOrNull { it.get() === parent } == null) parents.add(WeakReference(parent))
     }
 
+    @Synchronized
     override fun removeParent(parent: SingletonEntityParent) {
-        parents.remove(parent)
+        parents.removeAll { it.get() == null }
+        parents.forEach {
+            if (it.get() === parent) {
+                parents.remove(it)
+                return@forEach
+            }
+        }
+        if (parents.isEmpty() && SingletonEntityStore.contains(this))
+            SingletonEntityStore.remove(this)
     }
 
     override fun replaceWith(newEntity: SingletonEntity) {
-        parents.forEach { it.replace(instance, newEntity) }
+        parents.forEach { it.get()?.replace(instance, newEntity) }
     }
 }
