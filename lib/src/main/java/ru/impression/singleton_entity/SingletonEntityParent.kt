@@ -94,7 +94,15 @@ class SingletonEntityList<T> @JvmOverloads constructor(c: Collection<T>? = null)
 
 fun <T> Collection<T>.toSingletonEntityList() = SingletonEntityList(this)
 
-class SingletonEntityWrapper<T : SingletonEntity?>(@Volatile var value: T) : SingletonEntityParent {
+class SingletonEntityWrapper<T : SingletonEntity?>(value: T) : SingletonEntityParent {
+
+    @Volatile
+    var value: T = value
+        set(value) {
+            field?.removeParent(this)
+            field = value
+            value?.addParent(this)
+        }
 
     @Synchronized
     override fun replace(oldEntity: SingletonEntity, newEntity: SingletonEntity) {

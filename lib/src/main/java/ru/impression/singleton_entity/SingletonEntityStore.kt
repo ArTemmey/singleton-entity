@@ -5,9 +5,10 @@ import kotlin.reflect.KClass
 
 object SingletonEntityStore {
 
-
     private val entities =
         HashMap<KClass<out SingletonEntity>, MutableList<WeakReference<SingletonEntity>>>()
+
+    var maxSize = 500
 
     fun get(entityClass: KClass<out SingletonEntity>, id: Any): SingletonEntity? =
         entities[entityClass]?.firstOrNull { it.get()?.id == id }?.get()
@@ -28,6 +29,7 @@ object SingletonEntityStore {
                 list[oldEntityIndex] = WeakReference(entity)
                 oldEntity.get()?.replaceWith(entity)
             } else {
+                if (list.size == maxSize) list.removeFirst()
                 list.add(WeakReference(entity))
             }
         }
