@@ -8,6 +8,8 @@ interface SingletonEntity : SingletonEntityParent {
 
     var instance: SingletonEntity
 
+    val actualInstance: SingletonEntity
+
     val parents: List<WeakReference<SingletonEntityParent>>
 
     fun replaceWith(newEntity: SingletonEntity)
@@ -23,12 +25,23 @@ class SingletonEntityImpl(override val id: Any) : SingletonEntity,
     @Volatile
     private var _instance: SingletonEntity? = null
 
+    @Volatile
+    private var isActual = false
+
     override var instance: SingletonEntity
         get() = _instance!!
         set(value) {
             _instance = value
             SingletonEntityStore.put(value)
+            isActual = true
         }
+
+    override val actualInstance
+        get() = if (isActual)
+            instance
+        else
+            SingletonEntityStore.get(instance::class, id)
+                ?: instance.also { SingletonEntityStore.put(instance) }
 
     override val parents = CopyOnWriteArrayList<WeakReference<SingletonEntityParent>>()
 
@@ -47,11 +60,14 @@ class SingletonEntityImpl(override val id: Any) : SingletonEntity,
                 return@forEach
             }
         }
-        if (parents.isEmpty() && SingletonEntityStore.contains(this))
+        if (parents.isEmpty() && isActual) {
             SingletonEntityStore.remove(this)
+            isActual = false
+        }
     }
 
     override fun replaceWith(newEntity: SingletonEntity) {
         parents.forEach { it.get()?.replace(instance, newEntity) }
+        isActual = false
     }
 }

@@ -32,21 +32,27 @@ class SingletonEntityList<T> @JvmOverloads constructor(c: Collection<T>? = null)
     }
 
     override fun add(element: T): Boolean {
-        return super.add(element).also { (element as? SingletonEntity)?.addParent(this) }
+        val resultElement = ((element as? SingletonEntity)?.actualInstance ?: element) as T
+        return super.add(resultElement)
+            .also { (resultElement as? SingletonEntity)?.addParent(this) }
     }
 
     override fun add(index: Int, element: T) {
-        super.add(index, element).also { (element as? SingletonEntity)?.addParent(this) }
+        val resultElement = ((element as? SingletonEntity)?.actualInstance ?: element) as T
+        super.add(index, resultElement)
+            .also { (resultElement as? SingletonEntity)?.addParent(this) }
     }
 
     override fun addAll(elements: Collection<T>): Boolean {
-        return super.addAll(elements)
-            .also { elements.forEach { (it as? SingletonEntity)?.addParent(this) } }
+        val resultElements = elements.map { ((it as? SingletonEntity)?.actualInstance ?: it) as T }
+        return super.addAll(resultElements)
+            .also { resultElements.forEach { (it as? SingletonEntity)?.addParent(this) } }
     }
 
     override fun addAll(index: Int, elements: Collection<T>): Boolean {
-        return super.addAll(index, elements)
-            .also { elements.forEach { (it as? SingletonEntity)?.addParent(this) } }
+        val resultElements = elements.map { ((it as? SingletonEntity)?.actualInstance ?: it) as T }
+        return super.addAll(index, resultElements)
+            .also { resultElements.forEach { (it as? SingletonEntity)?.addParent(this) } }
     }
 
     override fun clear() {
@@ -76,7 +82,9 @@ class SingletonEntityList<T> @JvmOverloads constructor(c: Collection<T>? = null)
 
     override fun set(index: Int, element: T): T {
         (getOrNull(index) as? SingletonEntity)?.removeParent(this)
-        return super.set(index, element).also { (element as? SingletonEntity)?.addParent(this) }
+        val resultElement = ((element as? SingletonEntity)?.actualInstance ?: element) as T
+        return super.set(index, resultElement)
+            .also { (resultElement as? SingletonEntity)?.addParent(this) }
     }
 
     override fun removeRange(fromIndex: Int, toIndex: Int) {
@@ -100,8 +108,9 @@ class SingletonEntityWrapper<T : SingletonEntity?>(value: T) : SingletonEntityPa
     var value: T = value
         set(value) {
             field?.removeParent(this)
-            field = value
-            value?.addParent(this)
+            val resultValue = value?.actualInstance as T
+            field = resultValue
+            resultValue?.addParent(this)
         }
 
     @Synchronized
